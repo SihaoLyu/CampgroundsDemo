@@ -1,4 +1,5 @@
 const express = require("express");
+const ejsMate = require("ejs-mate");
 const mongoose = require("mongoose");
 const Campground = require("./models/campground");
 const path = require("path");
@@ -11,6 +12,7 @@ async function main() {
 	 * Middleware & env variables setup
 	 */
 
+	app.engine("ejs", ejsMate);
 	app.set("views", path.join(__dirname, "views"));
 	app.set("view engine", "ejs");
 	app.use(express.urlencoded({ extended: true }));
@@ -32,7 +34,8 @@ async function main() {
 	 */
 
 	app.get("/", (req, res) => {
-		res.render("home");
+		// res.render("home");
+		res.redirect("/campgrounds");
 	});
 
 	app.get("/campgrounds", async (req, res) => {
