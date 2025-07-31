@@ -6,8 +6,10 @@ const campgroundSchema = mongoose.Schema({
 		required: true,
 	},
 	price: {
-		type: String,
+		type: Number,
 		// required: true,
+		get: v => typeof v === 'string' ? parseFloat(v) : v,
+		set: v => typeof v === 'string' ? parseFloat(v) : v
 	},
 	description: {
 		type: String,
@@ -17,6 +19,10 @@ const campgroundSchema = mongoose.Schema({
 		type: String,
 		// required: true,
 	},
+	image: {
+		type: String,
+		// required: true
+	}
 });
 
 const Campground = mongoose.model("Campground", campgroundSchema);

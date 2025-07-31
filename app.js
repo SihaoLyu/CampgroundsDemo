@@ -17,6 +17,7 @@ async function main() {
 	app.set("view engine", "ejs");
 	app.use(express.urlencoded({ extended: true }));
 	app.use(methodOverride("_method"));
+	app.use(express.static("public"));
 
 	/**
 	 * Mongoose connection setup
@@ -48,7 +49,7 @@ async function main() {
 	});
 
 	app.post("/campgrounds", async (req, res) => {
-		const newCamp = new Campground(req.body);
+		const newCamp = new Campground(req.body.campground);
 		await newCamp.save();
 		res.redirect(`/campgrounds/${newCamp._id}`);
 	});
@@ -65,7 +66,7 @@ async function main() {
 
 	app.put("/campgrounds/:id", async (req, res) => {
 		const id = req.params.id;
-		const newCamp = await Campground.findByIdAndUpdate(id, req.body, {
+		const newCamp = await Campground.findByIdAndUpdate(id, req.body.campground, {
 			new: true,
 		});
 		res.redirect(`/campgrounds/${id}`);

@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
+const jokes = require("give-me-a-joke");
 const Campground = require("../models/campground");
 const cities = require("./cities");
 const { descriptors, places } = require("./seedHelpers");
+
+const SEEDS_NUM = 3; 	// MAX 1000
 
 async function seedDB() {
 	try {
@@ -15,42 +18,49 @@ async function seedDB() {
 		console.log(err);
 	}
 	
+	/**
+	 * Remove all old seeds
+	 */
 
 	await Campground.deleteMany({});
 	console.log("ALL DATA REMOVED\n");
 
+	/**
+	 * Add new seeds
+	 */
+
 	const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+	const getRandomJokePromise = () => {
+		return new Promise((resolve, reject) => {
+			jokes.getRandomDadJoke((err, joke) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(joke);
+				}
+			});
+		});
+	};
+
 	const campgrounds = [];
-
-	/**
-	 * Add all seeds
-	 */
-	// cities.forEach(city => {
-	// 	const campground = new Campground({
-	// 		title: `${getRandom(descriptors)} ${getRandom(places)}`,
-	// 		location: `${city.city} [${city.longitude}, ${city.latitude}]`
-	// 	});
-	// 	campgrounds.push(campground);
-	// });
-
-	/**
-	 * Add random 10 seeds
-	 */
 	const randomCities = new Set();
 
-	while (randomCities.size < 10) {
+	while (randomCities.size < SEEDS_NUM) {
 		const city = getRandom(cities);
 		randomCities.add(city);
 	};
 
-	randomCities.forEach(city => {
+	for (const city of randomCities) {
 		const campground = new Campground({
 			title: `${getRandom(descriptors)} ${getRandom(places)}`,
-			location: `${city.city} [${city.longitude}, ${city.latitude}]`
+			location: `${city.city}`,
+			image: `https://picsum.photos/seed/${Math.random()}/400`,
+			price: 10 + Math.floor(Math.random() * 25),
+			description: await getRandomJokePromise()
 		});
 		campgrounds.push(campground);
-	});
+	};
 
 	await Campground.insertMany(campgrounds);
 
