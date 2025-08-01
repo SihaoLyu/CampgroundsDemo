@@ -27,7 +27,10 @@
                 <label for="image" class="form-label">Image (URL)</label>
                 <input type="text" class="form-control" id="image" name="campground[image]" value="<%= campground.image ? campground.image : "" %>">
             </div>
-            <button type="submit" class="btn btn-info w-100">Update Campground</button>
+            <div class="d-flex gap-2 mb-2">
+                <button type="submit" class="btn btn-info w-50">Update</button>
+                <a href="/campgrounds/<%= campground._id %>" class="btn btn-secondary w-50">Cancel</a>
+            </div>
         </form>
     </div>
 </div>
