@@ -2,30 +2,43 @@
 <h1 class="text-center">New Campground</h1>
 <div class="d-flex justify-content-center">
     <div class="container" style="max-width: 450px;">
-        <form action="/campgrounds" method="post">
+        <form action="/campgrounds" method="post" class="needs-validation" novalidate>
             <div class="my-3">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" name="campground[title]">
+                <input type="text" class="form-control" id="title" name="campground[title]" required>
+                <div class="invalid-feedback">
+                    Title needed
+                </div>
             </div>
             <div class="mb-3">
                 <label for="location" class="form-label">Location</label>
-                <input type="text" class="form-control" id="location" name="campground[location]">
+                <input type="text" class="form-control" id="location" name="campground[location]" required>
+                <div class="invalid-feedback">
+                    Location needed
+                </div>
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Price</label>
                 <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" min="0" step="1" class="form-control" id="price" name="campground[price]">
+                    <input type="number" min="0" step="1" class="form-control" id="price" name="campground[price]" required>
                     <span class="input-group-text">.00</span>
+                </div>
+                <div class="invalid-feedback">
+                    Invalid price
                 </div>
             </div>
             <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <input type="text" class="form-control" id="description" name="campground[description]">
+                <label for="image" class="form-label">Image (URL)</label>
+                <input type="text" class="form-control" id="image" name="campground[image]" required>
+                <div class="invalid-feedback">
+                    Image URL needed
+                </div>
             </div>
             <div class="mb-4">
-                <label for="image" class="form-label">Image (URL)</label>
-                <input type="text" class="form-control" id="image" name="campground[image]">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" type="text" id="description"
+                    name="campground[description]"></textarea>
             </div>
             <button type="submit" class="btn btn-success w-100">Add Campground</button>
         </form>
