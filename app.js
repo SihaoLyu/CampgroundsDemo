@@ -4,11 +4,13 @@ const mongoose = require("mongoose");
 const Campground = require("./models/campground");
 const path = require("path");
 const methodOverride = require("method-override");
+const AppError = require("./utils/appError");
+const { campgroundJoiSchema } = require("./utils/joiSchemas/campgroundJoiSchema");
 
 const app = express();
 
 async function main() {
-    /**
+	/**
 	 * Middleware & env variables setup
 	 */
 
@@ -19,16 +21,26 @@ async function main() {
 	app.use(methodOverride("_method"));
 	app.use(express.static("public"));
 
+	const validateCampground = (req, res, next) => {
+		console.log(req.body);
+		const { error } = campgroundJoiSchema.validate(req.body, { presence: "required" });
+		if (error) {
+			const errorMessage = error.details.map((el) => el.message).join(", ");
+			throw new AppError(errorMessage, 400, "Pre Validation Error");
+		}
+		next();
+	};
+
 	/**
 	 * Mongoose connection setup
 	 */
 
-    try {
-        await mongoose.connect("mongodb://localhost:27017/campgroundDemo");
-        console.log("MONGO CONNECTION DONE");
-    } catch (err) {
-        console.error(`MONGO CONNECTION WRONG: ${err}`);
-    }
+	try {
+		await mongoose.connect("mongodb://localhost:27017/campgroundDemo");
+		console.log("MONGO CONNECTION DONE");
+	} catch (err) {
+		console.error(`MONGO CONNECTION WRONG: ${err}`);
+	}
 
 	/**
 	 * APIs
@@ -48,7 +60,7 @@ async function main() {
 		res.render("campgrounds/new");
 	});
 
-	app.post("/campgrounds", async (req, res) => {
+	app.post("/campgrounds", validateCampground, async (req, res) => {
 		const newCamp = new Campground(req.body.campground);
 		await newCamp.save();
 		res.redirect(`/campgrounds/${newCamp._id}`);
@@ -56,18 +68,25 @@ async function main() {
 
 	app.get("/campgrounds/:id", async (req, res) => {
 		const campground = await Campground.findById(req.params.id);
+		if (!campground) {
+			throw new AppError("Invalid campground ID", 400);
+		}
 		res.render("campgrounds/show", { campground });
 	});
 
 	app.get("/campgrounds/:id/edit", async (req, res) => {
 		const campground = await Campground.findById(req.params.id);
+		if (!campground) {
+			throw new AppError("Invalid campground ID", 404);
+		}
 		res.render("campgrounds/edit", { campground });
 	});
 
-	app.put("/campgrounds/:id", async (req, res) => {
+	app.put("/campgrounds/:id", validateCampground, async (req, res) => {
 		const id = req.params.id;
-		const newCamp = await Campground.findByIdAndUpdate(id, req.body.campground, {
+		const newCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, {
 			new: true,
+			runValidators: true
 		});
 		res.redirect(`/campgrounds/${id}`);
 	});
@@ -76,6 +95,22 @@ async function main() {
 		const id = req.params.id;
 		await Campground.findByIdAndDelete(id);
 		res.redirect("/campgrounds");
+	});
+
+	/**
+	 * App error handling
+	 */
+
+	app.all(/(.*)/, (req, res) => {
+		throw new AppError(`${req.path} is not a valid URL`, 404);
+	});
+
+	app.use((err, req, res, next) => {
+		if (!err.message) {
+			err.message = "Something went wrong!";
+		}
+		console.error(err.stack);
+		res.status(err.statusCode || 500).render("error", { err });
 	});
 
 	/**

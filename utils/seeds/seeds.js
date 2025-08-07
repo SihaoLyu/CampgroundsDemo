@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const jokes = require("give-me-a-joke");
-const Campground = require("../models/campground");
+const Campground = require("../../models/campground");
 const cities = require("./cities");
 const { descriptors, places } = require("./seedHelpers");
 
