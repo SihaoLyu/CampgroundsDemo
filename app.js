@@ -2,10 +2,12 @@ const express = require("express");
 const ejsMate = require("ejs-mate");
 const mongoose = require("mongoose");
 const Campground = require("./models/campground");
+const Review = require("./models/review");
 const path = require("path");
 const methodOverride = require("method-override");
 const AppError = require("./utils/appError");
 const { campgroundJoiSchema } = require("./utils/joiSchemas/campgroundJoiSchema");
+const { reviewJoiSchema } = require("./utils/joiSchemas/reviewJoiSchema");
 
 const app = express();
 
@@ -22,14 +24,22 @@ async function main() {
 	app.use(express.static("public"));
 
 	const validateCampground = (req, res, next) => {
-		console.log(req.body);
 		const { error } = campgroundJoiSchema.validate(req.body, { presence: "required" });
 		if (error) {
 			const errorMessage = error.details.map((el) => el.message).join(", ");
-			throw new AppError(errorMessage, 400, "Pre Validation Error");
+			throw new AppError(errorMessage, 400, "Campground Pre Validation Error");
 		}
 		next();
 	};
+
+	const validateReview = (req, res, next) => {
+		const { error } = reviewJoiSchema.validate(req.body, { presence: "required" });
+		if (error) {
+			const errorMessage = error.details.map((el) => el.message).join(", ");
+			throw new AppError(errorMessage, 400, "Review Pre Validation Error");
+		}
+		next();
+	}
 
 	/**
 	 * Mongoose connection setup
@@ -67,7 +77,7 @@ async function main() {
 	});
 
 	app.get("/campgrounds/:id", async (req, res) => {
-		const campground = await Campground.findById(req.params.id);
+		const campground = await Campground.findById(req.params.id).populate("reviews");
 		if (!campground) {
 			throw new AppError("Invalid campground ID", 400);
 		}
@@ -95,6 +105,26 @@ async function main() {
 		const id = req.params.id;
 		await Campground.findByIdAndDelete(id);
 		res.redirect("/campgrounds");
+	});
+
+	app.post("/campgrounds/:id/reviews", validateReview, async (req, res) => {
+		const id = req.params.id;
+		const campground = await Campground.findById(id);
+		if (!campground) {
+			throw new AppError("Invalid campground ID", 404);
+		}
+		const newReview = new Review(req.body.review);
+		campground.reviews.push(newReview);
+		await newReview.save();
+		await campground.save();
+		res.redirect(`/campgrounds/${id}`)
+	});
+
+	app.delete("/campgrounds/:id/reviews/:reviewId", async (req, res) => {
+		const { id, reviewId } = req.params;
+		await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+		await Review.findByIdAndDelete(reviewId);
+		res.redirect(`/campgrounds/${id}`);
 	});
 
 	/**

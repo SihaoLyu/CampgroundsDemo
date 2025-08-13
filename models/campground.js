@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Review = require("./review");
 
 const campgroundSchema = mongoose.Schema({
 	title: {
@@ -21,6 +22,20 @@ const campgroundSchema = mongoose.Schema({
 	image: {
 		type: String,
 		required: true
+	},
+	reviews: [
+		{
+			type: mongoose.Schema.ObjectId,
+			ref: "Review"
+		}
+	]
+});
+
+campgroundSchema.post("findOneAndDelete", async (doc) => {
+	if (doc) {
+		await Review.deleteMany({
+			_id: { $in: doc.reviews }
+		})
 	}
 });
 
