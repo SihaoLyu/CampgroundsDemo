@@ -39,7 +39,24 @@
                             No blank review
                         </div>
                     </div>
-                    <button class="btn btn-success mt-3">Submit</button>
+                    <div class="d-flex justify-content-between mt-3">
+                        <div class="star-rating animated-stars">
+                            <input type="radio" id="star5" name="review[rating]" value="5" required>
+                            <label for="star5" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star4" name="review[rating]" value="4" required>
+                            <label for="star4" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star3" name="review[rating]" value="3" required>
+                            <label for="star3" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star2" name="review[rating]" value="2" required>
+                            <label for="star2" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star1" name="review[rating]" value="1" required>
+                            <label for="star1" class="bi bi-star-fill"></label>
+                            <div class="invalid-feedback" style="text-align: left;">    <!-- Must set text-algin: left OR direction: ltr -->
+                                Please select a rating
+                            </div>
+                        </div>
+                        <button class="btn btn-success">Submit</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -47,7 +64,7 @@
         <% for (let r of campground.reviews) { %>
             <div class="card mt-3">
                 <div class="card-body">
-                    <p><%= r.content %></p>
+                    <p><%= r.content %> - <b><%= r.rating %>&#9733;/5</b></p>
                     <form action="/campgrounds/<%= campground._id %>/reviews/<%= r._id %>?_method=DELETE" method="POST">
                         <button class="btn btn-sm btn-outline-danger">Delete</button>
                     </form>
