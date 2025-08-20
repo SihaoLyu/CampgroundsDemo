@@ -1,3 +1,7 @@
+body {
+    background-color: rgb(231, 234, 234);
+}
+
 .star-rating {
     direction: rtl;
     cursor: pointer;

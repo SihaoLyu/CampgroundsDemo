@@ -64,7 +64,7 @@
         <% for (let r of campground.reviews) { %>
             <div class="card mt-3">
                 <div class="card-body">
-                    <p><%= r.content %> - <b><%= r.rating %>&#9733;/5</b></p>
+                    <p><%= r.content %> - (<b><%= r.rating %>/5&#9733;</b>)</p>
                     <form action="/campgrounds/<%= campground._id %>/reviews/<%= r._id %>?_method=DELETE" method="POST">
                         <button class="btn btn-sm btn-outline-danger">Delete</button>
                     </form>
