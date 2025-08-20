@@ -21,35 +21,10 @@
 	<%- include("../partials/footer") %>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
-		crossorigin="anonymous">
-	</script>
-	<script>
-		// Example starter JavaScript for disabling form submissions if there are invalid fields
-		(() => {
-			'use strict'
-			const forms = document.querySelectorAll('.needs-validation')
-			Array.from(forms).forEach(form => {
-				form.addEventListener('submit', event => {
-					if (!form.checkValidity()) {
-						event.preventDefault()
-						event.stopPropagation()
-					}
-					form.classList.add('was-validated')
-				}, false)
-			})
-		})()
-	</script>
-	<script>
-		document.querySelectorAll('.star-rating:not(.readonly) label').forEach(star => {
-			star.addEventListener('click', function() {
-				this.style.transform = 'scale(1.2)';
-				setTimeout(() => {
-					this.style.transform = 'scale(1)';
-				}, 200);
-			});
-		});
-	</script>
+		integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous">
+		</script>
+	<script src="/js/bootstrapFormValidation.js"></script>
+	<script src="/js/starRating.js"></script>
 </body>
 
 </html>
