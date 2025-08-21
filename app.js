@@ -6,6 +6,8 @@ const methodOverride = require("method-override");
 const AppError = require("./utils/appError");
 const reviewRouter = require("./routes/reviewRouter");
 const campgroundRouter = require("./routes/campgroundRouter");
+const session = require("express-session");
+const flash = require("connect-flash");
 
 const app = express();
 
@@ -20,6 +22,24 @@ async function main() {
 	app.use(express.urlencoded({ extended: true }));
 	app.use(methodOverride("_method"));
 	app.use(express.static("public"));
+
+	const sessionOptions = {
+		secret: "TBD",
+		resave: false, 
+		saveUninitialized: true, 
+		cookie: {
+			expires: Date.now() + 7 * 1000 * 60 * 60 * 24,
+			maxAge: 7 * 1000 * 60 * 60 * 24,
+			httpOnly: true
+		}
+	};
+	app.use(session(sessionOptions));
+	app.use(flash());
+	app.use((req, res, next) => {
+		res.locals.success = req.flash("success");
+		res.locals.error = req.flash("error");
+		next();
+	});
 
 	/**
 	 * Routers setup
