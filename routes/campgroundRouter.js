@@ -2,6 +2,7 @@ const express = require("express");
 const Campground = require("../models/campground");
 const campgroundJoiSchema = require("../utils/joiSchemas/campgroundJoiSchema");
 const AppError = require("../utils/appError");
+const { isLoggedIn } = require("../utils/commonMiddlewares");
 
 const router = express.Router();
 
@@ -19,11 +20,11 @@ router.get("/", async (req, res) => {
     res.render("campgrounds/index", { campgrounds });
 });
 
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
     res.render("campgrounds/new");
 });
 
-router.post("/", validateCampground, async (req, res) => {
+router.post("/", validateCampground, isLoggedIn, async (req, res) => {
     const newCamp = new Campground(req.body.campground);
     await newCamp.save();
     req.flash("success", "Successfully adding campground!");
@@ -39,7 +40,7 @@ router.get("/:id", async (req, res) => {
     res.render("campgrounds/show", { campground });
 });
 
-router.get("/:id/edit", async (req, res) => {
+router.get("/:id/edit", isLoggedIn, async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     if (!campground) {
         req.flash("error", "Cannot find that campground!");
@@ -48,7 +49,7 @@ router.get("/:id/edit", async (req, res) => {
     res.render("campgrounds/edit", { campground });
 });
 
-router.put("/:id", validateCampground, async (req, res) => {
+router.put("/:id", validateCampground, isLoggedIn, async (req, res) => {
     const id = req.params.id;
     const newCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, {
         new: true,
@@ -58,7 +59,7 @@ router.put("/:id", validateCampground, async (req, res) => {
     res.redirect(`/campgrounds/${id}`);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", isLoggedIn, async (req, res) => {
     const id = req.params.id;
     await Campground.findByIdAndDelete(id);
     req.flash("success", "Successfully delete the campground");
