@@ -17,15 +17,20 @@
                     <small class="text-muted"><%= campground.location%></small>
                 </li>
                 <li class="list-group-item">
+                    <p class="card-text">Submitted by <%= campground.author.equals(currentUser) ? "You" : campground.author.username %></p>
+                </li>
+                <li class="list-group-item">
                     <p class="card-text">$<%= campground.price %> / night</p>
                 </li>
             </ul>
-            <div class="card-body">
-                <a href="/campgrounds/<%= campground._id %>/edit" class="btn btn-info">Edit</a>
-                <form class="d-inline" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
-                    <button class="btn btn-danger">Delete</button>
-                </form>
-            </div>
+            <% if (campground.author.equals(currentUser)) { %>
+                <div class="card-body">
+                    <a href="/campgrounds/<%= campground._id %>/edit" class="btn btn-info">Edit</a>
+                    <form class="d-inline" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                        <button class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            <% } %>
         </div>
     </div>
     <div class="col-12 col-md-6">
