@@ -17,7 +17,7 @@ const validateCampground = (req, res, next) => {
 
 const isCampgroundAuthor = async (req, res, next) => {
     const campground = await Campground.findById(req.params.id);
-    if (!req.user.equals(campground.author)) {
+    if (!req.user._id.equals(campground.author)) {
         req.flash("error", "You do not have the permission");
         return res.redirect("/campgrounds");
     }
@@ -42,7 +42,7 @@ router.post("/", validateCampground, isLoggedIn, async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-    const campground = await Campground.findById(req.params.id).populate("reviews").populate("author");
+    const campground = await Campground.findById(req.params.id).populate("author").populate({ path: "reviews", populate: "author" });
     if (!campground) {
         req.flash("error", "Cannot find that campground!");
         return res.redirect("/campgrounds");
