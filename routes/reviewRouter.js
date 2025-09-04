@@ -16,6 +16,15 @@ const validateReview = (req, res, next) => {
     next();
 }
 
+const isReviewAuthor = async (req, res, next) => {
+    const review = await Review.findById(req.params.reviewId);
+    if (!req.user._id.equals(review.author)) {
+        req.flash("error", "You do not have the permission");
+        return res.redirect("/campgrounds");
+    }
+    next();
+}
+
 router.post("/reviews", validateReview, isLoggedIn, async (req, res) => {
     const id = req.params.id;
     const campground = await Campground.findById(id);
@@ -23,6 +32,7 @@ router.post("/reviews", validateReview, isLoggedIn, async (req, res) => {
         throw new AppError("Invalid campground ID", 404);
     }
     const newReview = new Review(req.body.review);
+    newReview.author = req.user._id;
     campground.reviews.push(newReview);
     await newReview.save();
     await campground.save();
@@ -30,7 +40,7 @@ router.post("/reviews", validateReview, isLoggedIn, async (req, res) => {
     res.redirect(`/campgrounds/${id}`)
 });
 
-router.delete("/reviews/:reviewId", isLoggedIn, async (req, res) => {
+router.delete("/reviews/:reviewId", isLoggedIn, isReviewAuthor, async (req, res) => {
     const { id, reviewId } = req.params;
     await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
     await Review.findByIdAndDelete(reviewId);
