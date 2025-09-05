@@ -1,5 +1,7 @@
 <% layout("layouts/boilerplate") -%>
 
+<link rel="stylesheet" href="/css/starability-basic.min.css">
+
 <div class="row">
     <div class="col-12 col-md-6">
         <div class="card mb-3">
@@ -76,15 +78,16 @@
             <% for (let r of campground.reviews) { %>
                 <div class="card mt-3">
                     <div class="card-body">
-                        <p><%= r.content %> - (<b><%= r.rating %>/5&#9733;</b>)</p>
-                        <div class="d-flex justify-content-between">
-                            <p>By <%= currentUser && currentUser._id.equals(r.author._id) ? "You" : r.author.username %></p>
-                            <% if (currentUser && currentUser._id.equals(r.author._id)) { %>
-                                <form action="/campgrounds/<%= campground._id %>/reviews/<%= r._id %>?_method=DELETE" method="POST">
-                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
-                            <% } %>
-                        </div>
+                        <h5 class="starability-result card-title" data-rating=<%= r.rating %>></h5>
+                        <h6 class="card-subtitle mt-3 text-body-secondary">
+                            By <%= currentUser && currentUser._id.equals(r.author._id) ? "You" : r.author.username %>
+                        </h6>
+                        <p class="mt-3 mb-0"><%= r.content %></p>
+                        <% if (currentUser && currentUser._id.equals(r.author._id)) { %>
+                            <form class="mt-3" action="/campgrounds/<%= campground._id %>/reviews/<%= r._id %>?_method=DELETE" method="POST">
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        <% } %>
                     </div>
                 </div>
             <% } %>
