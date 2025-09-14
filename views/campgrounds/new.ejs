@@ -2,7 +2,7 @@
 <h1 class="text-center">New Campground</h1>
 <div class="d-flex justify-content-center">
     <div class="container" style="max-width: 450px;">
-        <form action="/campgrounds" method="post" class="needs-validation" novalidate>
+        <form action="/campgrounds" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
             <div class="my-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" class="form-control" id="title" name="campground[title]" required>
@@ -29,16 +29,15 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">Image (URL)</label>
-                <input type="text" class="form-control" id="image" name="campground[image]" required>
-                <div class="invalid-feedback">
-                    Image URL needed
-                </div>
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" type="text" id="description" name="campground[description]"></textarea>
             </div>
             <div class="mb-4">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" type="text" id="description"
-                    name="campground[description]"></textarea>
+                <label for="images" class="form-label">Upload Images</label>
+                <input class="form-control" type="file" id="images" name="images" multiple required>
+                <div class="invalid-feedback">
+                    At least one image needed
+                </div>
             </div>
             <button type="submit" class="btn btn-success w-100">Add Campground</button>
         </form>

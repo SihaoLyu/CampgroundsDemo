@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
 const Review = require("./review");
+const { removeImages } = require("../services/storage");
+
+const imageSchema = mongoose.Schema({
+	url: String,
+	fileName: String
+});
 
 const campgroundSchema = mongoose.Schema({
 	title: {
@@ -19,10 +25,7 @@ const campgroundSchema = mongoose.Schema({
 		type: String,
 		required: true
 	},
-	image: {
-		type: String,
-		required: true
-	},
+	images: [imageSchema],
 	author: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User"
@@ -39,7 +42,8 @@ campgroundSchema.post("findOneAndDelete", async (doc) => {
 	if (doc) {
 		await Review.deleteMany({
 			_id: { $in: doc.reviews }
-		})
+		});
+		await removeImages(doc.images.map(i => (i.fileName)));
 	}
 });
 

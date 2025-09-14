@@ -1,15 +1,18 @@
-const express = require("express");
-const app = express();
-
 async function main() {
 	/**
-	 * Middleware & env variables config
+	 * App basic setup
 	 */
-
+	
+	const express = require("express");
 	const ejsMate = require("ejs-mate");
 	const path = require("path");
 	const methodOverride = require("method-override");
 
+	if (process.env.NODE_ENV !== "production") {
+		require("dotenv").config();
+	}
+
+	const app = express();
 	app.engine("ejs", ejsMate);
 	app.set("views", path.join(__dirname, "views"));
 	app.set("view engine", "ejs");

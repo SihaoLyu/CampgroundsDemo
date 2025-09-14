@@ -3,6 +3,7 @@ const Campground = require("../models/campground");
 const campgroundJoiSchema = require("../utils/joiSchemas/campgroundJoiSchema");
 const AppError = require("../utils/appError");
 const { isLoggedIn } = require("../utils/commonMiddlewares");
+const { uploadImageParser, urlDerive, removeImages } = require("../services/storage");
 
 const router = express.Router();
 
@@ -33,9 +34,10 @@ router.get("/new", isLoggedIn, (req, res) => {
     res.render("campgrounds/new");
 });
 
-router.post("/", validateCampground, isLoggedIn, async (req, res) => {
+router.post("/", isLoggedIn, uploadImageParser.array("images"), validateCampground, async (req, res) => {
     const newCamp = new Campground(req.body.campground);
     newCamp.author = req.user._id;
+    newCamp.images = req.files.map(f => ({ url: urlDerive(f), fileName: f.filename }));
     await newCamp.save();
     req.flash("success", "Successfully adding campground!");
     res.redirect(`/campgrounds/${newCamp._id}`);
@@ -59,12 +61,23 @@ router.get("/:id/edit", isLoggedIn, isCampgroundAuthor, async (req, res) => {
     res.render("campgrounds/edit", { campground });
 });
 
-router.put("/:id", validateCampground, isLoggedIn, isCampgroundAuthor, async (req, res) => {
-    const id = req.params.id;
-    const newCamp = await Campground.findByIdAndUpdate(id, { ...req.body.campground }, {
-        new: true,
-        runValidators: true
-    });
+router.put("/:id", isLoggedIn, isCampgroundAuthor, uploadImageParser.array("images"), validateCampground, async (req, res) => {
+    const { id } = req.params;
+    const newCamp = await Campground.findByIdAndUpdate(
+        id, { ...req.body.campground },
+        {
+            new: true,
+            runValidators: true
+        }
+    );
+    const imagesToAdd = req.files.map(f => ({ url: urlDerive(f), fileName: f.filename }));
+    newCamp.images.push(...imagesToAdd);
+    await newCamp.save();
+    const imagesToRemove = req.body.imagesToRemove || [];
+    if (imagesToRemove.length > 0) {
+        await newCamp.updateOne({ $pull: { images: { fileName: { $in: imagesToRemove } } } });
+        await removeImages(imagesToRemove);
+    }
     req.flash("success", "successfully update the campground!");
     res.redirect(`/campgrounds/${id}`);
 });
