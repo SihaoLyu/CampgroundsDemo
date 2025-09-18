@@ -4,6 +4,7 @@ const campgroundJoiSchema = require("../utils/joiSchemas/campgroundJoiSchema");
 const AppError = require("../utils/appError");
 const { isLoggedIn } = require("../utils/commonMiddlewares");
 const { uploadImageParser, urlDerive, removeImages } = require("../services/storage");
+const { getGeometry } = require("../services/map");
 
 const router = express.Router();
 
@@ -36,6 +37,7 @@ router.get("/new", isLoggedIn, (req, res) => {
 
 router.post("/", isLoggedIn, uploadImageParser.array("images"), validateCampground, async (req, res) => {
     const newCamp = new Campground(req.body.campground);
+    newCamp.geometry = await getGeometry(newCamp.location);
     newCamp.author = req.user._id;
     newCamp.images = req.files.map(f => ({ url: urlDerive(f), fileName: f.filename }));
     await newCamp.save();
@@ -70,6 +72,7 @@ router.put("/:id", isLoggedIn, isCampgroundAuthor, uploadImageParser.array("imag
             runValidators: true
         }
     );
+    newCamp.geometry = await getGeometry(newCamp.location);
     const imagesToAdd = req.files.map(f => ({ url: urlDerive(f), fileName: f.filename }));
     newCamp.images.push(...imagesToAdd);
     await newCamp.save();
