@@ -8,6 +8,8 @@ const { getGeometry } = require("../services/map");
 
 const router = express.Router();
 
+const PAGE_SIZE_DEFAULT = 8;
+
 const validateCampground = (req, res, next) => {
     const { error } = campgroundJoiSchema.validate(req.body, { presence: "required" });
     if (error) {
@@ -26,9 +28,17 @@ const isCampgroundAuthor = async (req, res, next) => {
     next();
 }
 
-router.get("/", async (req, res) => {
-    const campgrounds = await Campground.find({});
-    res.render("campgrounds/index", { campgrounds });
+router.get('/', async (req, res) => {
+    const page = Math.max(parseInt(req.query.page || '1'), 1);
+    const limit = Math.max(parseInt(req.query.limit || PAGE_SIZE_DEFAULT), 1);
+    const [total, campgrounds, allGeometries] = await Promise.all([
+        Campground.estimatedDocumentCount({}),
+        Campground.find({}).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
+            .select('title location description images').slice("images", 1).lean(),
+        Campground.find({}).select('geometry title _id').lean()
+    ]);
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    res.render('campgrounds/index', { campgrounds, page, totalPages, limit, allGeometries });
 });
 
 router.get("/new", isLoggedIn, (req, res) => {
