@@ -14,7 +14,6 @@ async function getGeometry(place) {
     if (!feature) {
         throw new Error("Cannot find the place");
     }
-    console.log(body);
     return feature.geometry;
 }
 

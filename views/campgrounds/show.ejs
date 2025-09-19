@@ -1,7 +1,6 @@
 <% layout("layouts/boilerplate") -%>
 
 <link rel="stylesheet" href="/css/starability-basic.min.css">
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.css" rel="stylesheet">
 
 <div class="row">
     <div class="col-12">
@@ -10,16 +9,10 @@
     <div class="col-12 col-md-6">
         <div class="card mb-3">
             <div id="image-carousel" class="carousel slide card-img-top">
+                <% if (campground.images.length > 1) { %>
                 <div class="carousel-indicators">
                     <% campground.images.forEach((img, i) => { %>
                     <button type="button" data-bs-target="#image-carousel" data-bs-slide-to="<%= i %>" class="<%= i===0 ? 'active' : '' %>"></button>
-                    <% } ) %>
-                </div>
-                <div class="carousel-inner">
-                    <% campground.images.forEach((img, i) => { %>
-                    <div class="carousel-item <%= i===0 ? "active" : "" %>">
-                        <img src="<%= img.url %>" class="d-block w-100" alt="...">
-                    </div>
                     <% } ) %>
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#image-carousel" data-bs-slide="prev">
@@ -30,6 +23,14 @@
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Next</span>
                 </button>
+                <% } %>
+                <div class="carousel-inner">
+                    <% campground.images.forEach((img, i) => { %>
+                    <div class="carousel-item <%= i===0 ? "active" : "" %>">
+                        <img src="<%= img.url %>" class="d-block w-100" alt="...">
+                    </div>
+                    <% } ) %>
+                </div>
             </div>
             <div class="card-body">
                 <h5 class="card-title">
@@ -120,9 +121,8 @@
     </div>
 </div>
 
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.js"></script>
 <script>
     const mapAccessToken = '<%- process.env.MAPBOX_ACCESS_TOKEN %>';
     const geometry = <%- JSON.stringify(campground.geometry) %>;
 </script>
-<script src="/js/map.js"></script>
+<script src="/js/showPageMap.js"></script>

@@ -1,27 +1,50 @@
 <% layout("layouts/boilerplate") -%>
+
+<div class="row">
+    <div class="col-12">
+        <div class="mb-3" id='map' style='height: 250px;'></div>
+    </div>
+</div>
+
 <h1>All Campgrounds</h1>
-<div class="d-flex justify-content-center">
-    <div class="row row-cols-1">
-        <% for (let c of campgrounds) { %>
-            <div class="col">
-                <div class="card my-3 w-100 rounded-0">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="<%= c.images[0].url %>" class="img-fluid w-100 h-100 object-fit-cover" alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h5 class="card-title"><%= c.title %></h5>
-                                <p class="card-text">
-                                    <small class="text-muted"><%= c.location%></small>
-                                </p>
-                                <p class="card-text"><%= c.description %></p>
-                                <a href="/campgrounds/<%= c._id %>" class="btn btn-primary">View <%= c.title %></a>
-                            </div>
-                        </div>
+
+<div class="row">
+    <% for (let c of campgrounds) { %>
+    <div class="col-12">
+        <div class="card my-3 w-100 rounded-0">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="<%= c.images[0].url %>" class="img-fluid w-100 h-100 object-fit-cover" alt="...">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= c.title %></h5>
+                        <p class="card-text">
+                            <small class="text-muted"><%= c.location%></small>
+                        </p>
+                        <p class="card-text"><%= c.description %></p>
+                        <a href="/campgrounds/<%= c._id %>" class="btn btn-primary">View <%= c.title %></a>
                     </div>
                 </div>
             </div>
-		<% } %>
+        </div>
     </div>
+    <% } %>
 </div>
+
+<script>
+    const mapAccessToken = '<%- process.env.MAPBOX_ACCESS_TOKEN %>';
+    const allGeometries = <%- JSON.stringify(
+        campgrounds.map(c => (
+            {
+                type: "Feature",
+                geometry: c.geometry,
+                properties: {
+                    title: c.title,
+                    link: `/campgrounds/${c._id}`
+                }
+            }
+        ))
+    ) %>;
+</script>
+<script src="/js/clusterMap.js"></script>

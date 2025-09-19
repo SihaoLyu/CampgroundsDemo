@@ -1,10 +1,12 @@
+require("dotenv").config({ path: "../.env" });
 const mongoose = require("mongoose");
-const jokes = require("give-me-a-joke");
-const Campground = require("../../models/campground");
+const Campground = require("../models/campground");
 const cities = require("./cities");
 const { descriptors, places } = require("./seedHelpers");
+const { getGeometry } = require("../services/map");
+const { faker } = require("@faker-js/faker");
 
-const SEEDS_NUM = 3; 	// MAX 1000
+const SEEDS_NUM = 64; 	// MAX 1000
 
 async function seedDB() {
 	try {
@@ -17,13 +19,13 @@ async function seedDB() {
 		console.log("MONGO CONNECT ERROR\n");
 		console.log(err);
 	}
-	
+
 	/**
 	 * Remove all old seeds
 	 */
 
-	await Campground.deleteMany({});
-	console.log("ALL DATA REMOVED\n");
+	// await Campground.deleteMany({});
+	// console.log("ALL DATA REMOVED\n");
 
 	/**
 	 * Add new seeds
@@ -52,17 +54,29 @@ async function seedDB() {
 	};
 
 	for (const city of randomCities) {
+		const location = `${city.city}, ${city.state}`;
 		const campground = new Campground({
 			title: `${getRandom(descriptors)} ${getRandom(places)}`,
-			location: `${city.city}`,
-			image: `https://picsum.photos/seed/${Math.random()}/400`,
 			price: 10 + Math.floor(Math.random() * 25),
-			description: await getRandomJokePromise()
+			description: faker.lorem.paragraph({ min: 1, max: 3 }),
+			location: location,
+			geometry: {
+				type: "Point",
+				coordinates: [city.longitude, city.latitude]
+			},
+			images: [
+				{
+					url: `https://picsum.photos/seed/${Math.random()}/400`,
+					fileName: `${Date.now()}`
+				}
+			],
+			author: "68b29d3ad3f0d8b6b37ff97b"
 		});
 		campgrounds.push(campground);
 	};
 
-	await Campground.insertMany(campgrounds);
+	const result = await Campground.insertMany(campgrounds);
+	console.log(result);
 
 	await mongoose.disconnect();
 	console.log("MONGO DISCONNECTED\n")

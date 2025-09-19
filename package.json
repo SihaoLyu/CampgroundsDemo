@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@mapbox/mapbox-sdk": "^0.16.2",
     "cloudinary": "^2.7.0",
     "connect-flash": "^0.1.1",
@@ -19,7 +20,6 @@
     "ejs-mate": "^4.0.0",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
-    "give-me-a-joke": "^0.5.1",
     "joi": "^17.13.3",
     "method-override": "^3.0.0",
     "mongoose": "^8.16.4",
