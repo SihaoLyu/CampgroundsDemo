@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
     const limit = Math.max(parseInt(req.query.limit || PAGE_SIZE_DEFAULT), 1);
     const [total, campgrounds, allGeometries] = await Promise.all([
         Campground.estimatedDocumentCount({}),
-        Campground.find({}).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
+        Campground.find({}).sort({ _id: 1 }).skip((page - 1) * limit).limit(limit)
             .select('title location description images').slice("images", 1).lean(),
         Campground.find({}).select('geometry title _id').lean()
     ]);
