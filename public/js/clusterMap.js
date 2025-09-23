@@ -1,11 +1,33 @@
 mapboxgl.accessToken = mapAccessToken;
 
+const WIDTH_MIN = 320;
+const WIDTH_MAX = 1080;
+const ZOOM_MIN = 1.9;
+const ZOOM_MAX = 3.8;
+
+function zoomFromWidth() {
+    const w = window.innerWidth;
+    const wMin = WIDTH_MIN, wMax = WIDTH_MAX;
+    const zMin = ZOOM_MIN, zMax = ZOOM_MAX;
+    const clamp01 = x => Math.max(0, Math.min(1, x));
+    const tLog = clamp01(Math.log(w / wMin) / Math.log(wMax / wMin));
+    const tLin = clamp01((w - wMin) / (wMax - wMin));
+
+    let t;
+    if (w < 600) {
+        t = Math.pow(tLog, 1.35);
+    } else {
+        t = 0.35 * tLin + 0.65 * Math.pow(tLog, 0.95);
+    }
+    return zMin + t * (zMax - zMin);
+}
+
 const map = new mapboxgl.Map({
     container: 'map',
     // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
     style: 'mapbox://styles/mapbox/standard',
-    center: [-103.5917, 40.6699],
-    zoom: 4
+    center: [-98.5795, 39.8283],
+    zoom: zoomFromWidth()
 });
 
 map.on('load', () => {
@@ -15,9 +37,9 @@ map.on('load', () => {
     map.addSource('campgrounds', {
         type: 'geojson',
         generateId: true,
-        data: { 
-            type: "FeatureCollection", 
-            features: allGeometries 
+        data: {
+            type: "FeatureCollection",
+            features: allGeometries
         },
         cluster: true,
         clusterMaxZoom: 14, // Max zoom to cluster points on

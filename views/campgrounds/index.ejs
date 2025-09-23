@@ -32,25 +32,18 @@
     <% } %>
 </div>
 
-<nav aria-label="Campgrounds pages" class="mt-3">
-    <ul class="pagination justify-content-center">
-        <li class="page-item <%= page <= 1 ? 'disabled' : '' %>"> 
-            <a class="page-link" href="?page=<%= page - 1 %>&limit=<%= limit %>">
-                <span aria-hidden="true">&laquo;</span>
-            </a> 
-        </li> 
-        <% for (let p = 1; p <= totalPages; p++) { %> 
-        <li class="page-item <%= p === page ? 'active' : '' %>">
-             <a class="page-link" href="?page=<%= p %>&limit=<%= limit %>"><%= p %></a> 
-        </li> 
-        <% } %> 
-        <li class="page-item <%= page >= totalPages ? 'disabled' : '' %>"> 
-            <a class="page-link" href="?page=<%= page + 1 %>&limit=<%= limit %>">
-                <span aria-hidden="true">&raquo;</span>
-            </a> 
-        </li>
-    </ul>
-</nav>
+<nav aria-label="Campgrounds pages" class="mt-3"> 
+    <ul id="pager" class="pagination justify-content-center flex-wrap"></ul>
+</nav> 
+
+<script> 
+    window.paging = { 
+        page: <%- JSON.stringify(page) %>, 
+        total: <%- JSON.stringify(totalPages) %>, 
+        limit: <%- JSON.stringify(limit) %> 
+    }; 
+</script> 
+<script src="/js/pager.js" defer></script>
 
 <script>
     const mapAccessToken = '<%- process.env.MAPBOX_ACCESS_TOKEN %>';

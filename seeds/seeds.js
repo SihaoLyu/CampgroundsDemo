@@ -3,10 +3,9 @@ const mongoose = require("mongoose");
 const Campground = require("../models/campground");
 const cities = require("./cities");
 const { descriptors, places } = require("./seedHelpers");
-const { getGeometry } = require("../services/map");
 const { faker } = require("@faker-js/faker");
 
-const SEEDS_NUM = 64; 	// MAX 1000
+const SEEDS_NUM = 300; 	// MAX 1000
 
 async function seedDB() {
 	try {
