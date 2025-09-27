@@ -84,7 +84,7 @@ async function main() {
 
 	app.get("/", (req, res) => {
 		// res.render("home");
-		res.redirect("/campgrounds");
+		res.render("home");
 	});
 
 	/**

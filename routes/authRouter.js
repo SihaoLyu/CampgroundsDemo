@@ -42,7 +42,7 @@ router.post(
     ),
     (req, res) => {
         req.flash("success", `Welcome back, ${req.user.username}`);
-        const returnTo = res.locals.returnTo || "/campgrounds";
+        const returnTo = res.locals.returnTo || "/";
         res.redirect(returnTo);
     }
 );
@@ -55,7 +55,7 @@ router.get("/logout", (req, res, next) => {
             return next(err);
         } else {
             req.flash("success", `Goodbye, ${usernameBeforeLogout}`);
-            res.redirect("/campgrounds");
+            res.redirect("/");
         }
     });
 });
