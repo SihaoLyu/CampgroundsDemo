@@ -41,6 +41,14 @@ async function main() {
 	 */
 
 	const session = require("express-session");
+	const MongoStore = require("connect-mongo");
+
+	if (!process.env.MONGODB_URI) {
+		throw new AppError(
+			"MONGODB_URI environment variable is not defined. Please set it in your environment.",
+			503
+		);
+	}
 
 	const sessionOptions = {
 		name: "session",
@@ -52,8 +60,16 @@ async function main() {
 			maxAge: 7 * 1000 * 60 * 60 * 24,
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production"
-		}
+		},
+		store: MongoStore.create({
+			mongoUrl: process.env.MONGODB_URI,
+			touchAfter: 24 * 60 * 60,
+			crypto: {
+				secret: process.env.MONGO_STORE_SECRET,
+			}
+		})
 	};
+
 	app.use(session(sessionOptions));
 
 	/**
@@ -96,11 +112,15 @@ async function main() {
 
 	const mongoose = require("mongoose");
 
+	if (!process.env.MONGODB_URI) {
+		throw new Error("MONGODB_URI environment variable is not set.");
+	}
+
 	try {
-		await mongoose.connect("mongodb://localhost:27017/campgroundDemo");
+		await mongoose.connect(process.env.MONGODB_URI);
 		console.log("MONGO CONNECTION DONE");
 	} catch (err) {
-		console.error(`MONGO CONNECTION WRONG: ${err}`);
+		throw new AppError(`MONGO CONNECTION WRONG: ${err}`, 503);
 	}
 
 	/**
