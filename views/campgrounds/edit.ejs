@@ -56,7 +56,7 @@
                     <div class="carousel-inner">
                         <% campground.images.forEach((img, i) => { %>
                         <div class="carousel-item <%= i === 0 ? 'active' : '' %> position-relative">
-                            <img src="<%= img.url %>" class="d-block w-100 img-thumbnail pe-none" alt="">
+                            <img src="<%= img.url %>" class="d-block w-100 img-thumbnail pe-none" alt="<%= img.fileName %>">
                             <input
                                 class="form-check-input position-absolute top-0 end-1 m-3 z-2"
                                 type="checkbox"

@@ -13,6 +13,7 @@ async function main() {
 	}
 
 	const app = express();
+	app.set("query parser", "extended");
 	app.engine("ejs", ejsMate);
 	app.set("views", path.join(__dirname, "views"));
 	app.set("view engine", "ejs");
@@ -21,19 +22,36 @@ async function main() {
 	app.use(express.static("public"));
 
 	/**
+	 * Security config
+	 */
+
+	const sanitizeV5 = require("./utils/mongoSanitizeV5");
+	const helmet = require("helmet");
+	const { cspDirectives } = require("./config/cspConfig");
+
+	app.use(sanitizeV5({ replaceWith: '_' }));
+	app.use(
+		helmet.contentSecurityPolicy({
+			directives: cspDirectives
+		})
+	);
+
+	/**
 	 * Session & Flash config
 	 */
 
 	const session = require("express-session");
 
 	const sessionOptions = {
-		secret: "TBD",
+		name: "session",
+		secret: process.env.COOKIE_SESSION_SECRET,
 		resave: false, 
 		saveUninitialized: true, 
 		cookie: {
 			expires: Date.now() + 7 * 1000 * 60 * 60 * 24,
 			maxAge: 7 * 1000 * 60 * 60 * 24,
-			httpOnly: true
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production"
 		}
 	};
 	app.use(session(sessionOptions));
@@ -50,6 +68,13 @@ async function main() {
 	passport.use(User.createStrategy());
 	passport.serializeUser(User.serializeUser());
 	passport.deserializeUser(User.deserializeUser());
+
+	app.use((req, res, next) => {
+		if (!["/login", "/register", "/logout"].includes(req.path)) {
+			req.session.returnTo = req.originalUrl;
+		}
+		next();
+	});
 
 	/**
 	 * Flash config
@@ -104,9 +129,12 @@ async function main() {
 	 */
 
 	const AppError = require("./utils/appError");
+	const CHROME_DEVTOOLS_URL = "/.well-known/appspecific/com.chrome.devtools.json"
 
 	app.all(/(.*)/, (req, res) => {
-		throw new AppError(`${req.path} is not a valid URL`, 404);
+		if (req.path !== CHROME_DEVTOOLS_URL) {
+			throw new AppError(`${req.path} is not a valid URL`, 404);
+		}
 	});
 
 	app.use((err, req, res, next) => {

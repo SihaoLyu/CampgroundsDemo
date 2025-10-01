@@ -1,9 +1,15 @@
 const express = require("express");
 const passport = require("passport");
 const User = require("../models/user");
-const { storeReturnTo } = require("../utils/commonMiddlewares");
 
 const router = express.Router();
+
+const storeReturnTo = (req, res, next) => {
+    if (req.session.returnTo) {
+        res.locals.returnTo = req.session.returnTo;
+    }
+    next();
+}
 
 router.get("/register", (req, res) => {
     res.render("auth/register");
