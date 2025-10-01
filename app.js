@@ -8,10 +8,6 @@ async function main() {
 	const path = require("path");
 	const methodOverride = require("method-override");
 
-	if (process.env.NODE_ENV !== "production") {
-		require("dotenv").config();
-	}
-
 	const app = express();
 	app.set("query parser", "extended");
 	app.engine("ejs", ejsMate);
@@ -20,6 +16,13 @@ async function main() {
 	app.use(express.urlencoded({ extended: true }));
 	app.use(methodOverride("_method"));
 	app.use(express.static("public"));
+
+	if (process.env.NODE_ENV !== "production") {
+		require("dotenv").config();
+	} else {
+		app.set('trust proxy', 1);
+		console.log("Prod env, dotenv wont turn on");
+	}
 
 	/**
 	 * Security config
